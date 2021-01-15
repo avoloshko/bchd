@@ -3,19 +3,20 @@ package main
 import (
 	"context"
 	"errors"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gcash/bchd/bchrpc"
 	"github.com/gorilla/mux"
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 )
 
 // AuthenticationTokenKey is the key used in the context to authenticate clients.
@@ -74,14 +75,14 @@ func newGrpcServer(netAddrs []net.Addr, rpcCfg *bchrpc.GrpcServerConfig, svr *se
 			router := mux.NewRouter()
 			router.Handle("/metrics", promhttp.Handler())
 
-			prometheusHttpServer := &http.Server{
+			prometheusHTTPServer := &http.Server{
 				Addr:         cfg.PrometheusListen,
 				Handler:      router,
 				ReadTimeout:  10 * time.Second,
 				WriteTimeout: 10 * time.Second,
 			}
 			go func() {
-				if err := prometheusHttpServer.ListenAndServe(); err != nil {
+				if err := prometheusHTTPServer.ListenAndServe(); err != nil {
 					grpcLog.Tracef("Finished serving Prometheus metrics %v", err)
 				}
 			}()
