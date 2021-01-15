@@ -82,7 +82,7 @@ func newGrpcServer(netAddrs []net.Addr, rpcCfg *bchrpc.GrpcServerConfig, svr *se
 				WriteTimeout: 10 * time.Second,
 			}
 			go func() {
-				if err := prometheusHTTPServer.ListenAndServe(); err != nil {
+				if err := prometheusHTTPServer.ListenAndServeTLS(cfg.RPCCert, cfg.RPCKey); err != nil {
 					grpcLog.Tracef("Finished serving Prometheus metrics %v", err)
 				}
 			}()
